@@ -1,0 +1,32 @@
+app:
+  application:
+    name: UserService
+
+# 서버포트
+server:
+  port: 8181
+
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/ #view단을 jsp로 사용
+      suffix: .jsp
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/spring?serverTimezone=Asia/Seoul
+      username: spring
+      password: spring
+  devtools:
+    restart: # 리로드, 리스타시 devtools모듈이 리로드 실행
+      enabled: true
+    livereload:
+      enabled: true
+  output:
+    ansi:
+      enabled: always
+
+logging:
+  level:
+    com.mallproject: debug
+
