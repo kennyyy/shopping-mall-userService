@@ -18,8 +18,19 @@ public class UserServiceImpl implements UserService {
         this.userMapper = userMapper;
     }
 
+
     @Override
-    public List<User> getUserInfo() {
+    public List<User> getUserAll() {
         return userMapper.getUserInfo();
+    }
+
+    @Override
+    public User findUser(String userId) {
+        return userMapper.findUser(userId);
+    }
+
+    @Override
+    public void saveUser(User user) {
+        userMapper.saveUser(user);
     }
 }

@@ -5,20 +5,28 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User{
     private String userId;
     private String userPw;
-    private String userNm;
+    private String userProvider;
+    private String userName;
     private String userEmail;
     private String userPhone;
     private int userAge;
-    private String userGen;
+    private String userGender;
     private String userLocation;
-    private int userFailCNT;
+    private String role;
+
+    List<GrantedAuthority> authorities = new ArrayList<>();
+
 }
