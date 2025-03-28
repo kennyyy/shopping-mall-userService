@@ -45,9 +45,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
         String provider = token.getAuthorizedClientRegistrationId();
 
-        System.out.println(provider);
-        System.out.println(token.getPrincipal().getAttributes());
-
         if(provider.equals("google")){
             myOAuth2User = new GoogleUser(token.getPrincipal().getAttributes());
         } else if (provider.equals("naver")) {
@@ -69,8 +66,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
             userMapper.saveUser(DBUser);
         }
 
-
-        String accessToken = JWTService.createToken(DBUser);
+        String accessToken = JWTService.createAccessToken(DBUser);
         String refreshToken = JWTService.CreateRefreshToken(DBUser);
 
         Token saveToken = Token.builder()
@@ -78,7 +74,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
                 .refreshToken(refreshToken)
                 .build();
         tokenMapper.saveToken(saveToken);
-
 
         response.setContentType("application/json; charset=UTF8;");
         response.addHeader("Authorization", "Bearer " + accessToken);
@@ -89,8 +84,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         cookie.setMaxAge(refreshExpireTime);
         response.addCookie(cookie);
 
-        String redirectUrl = String.format("%s?name=%s&accessToken=%s",
-                redirectURL, URLEncoder.encode(username, "UTF-8"), accessToken);
-        response.sendRedirect(redirectUrl);
+        response.sendRedirect(redirectURL);
     }
 }

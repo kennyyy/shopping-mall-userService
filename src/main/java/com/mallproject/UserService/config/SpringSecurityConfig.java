@@ -7,11 +7,14 @@ import com.mallproject.UserService.security.JwtAuthrizationFilter;
 import com.mallproject.UserService.security.MyUserDetailsService;
 import com.mallproject.UserService.security.handler.OAuthLoginFailureHandler;
 import com.mallproject.UserService.security.handler.OAuthLoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,16 +40,13 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SpringSecurityConfig {
 
     private final UserMapper userMapper;
     private final TokenMapper tokenMapper;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
-    @Autowired
-    public SpringSecurityConfig(UserMapper userMapper, MyUserDetailsService myUserDetailService, TokenMapper tokenMapper) {
-        this.userMapper = userMapper;
-        this.tokenMapper = tokenMapper;
-    }
 
     @Bean
     public BCryptPasswordEncoder encoder(){
@@ -59,14 +59,12 @@ public class SpringSecurityConfig {
         http.csrf().disable();
         http.formLogin().disable();
         http.httpBasic().disable();
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //Session 기반의 인증기반을 사용하지 않고 추후 JWT를 이용하여서 인증 예정
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.cors(Customizer.withDefaults());
 
-        AuthenticationManager authenticationManager = authenticationManager(http.getSharedObject(AuthenticationConfiguration.class));
-
-        http.addFilter(new JwtAuthrizationFilter(authenticationManager, userMapper))
-            .addFilter(new CustomLoginFilter(authenticationManager, tokenMapper));
+        http.addFilter( jwtAuthrizationFilter(authenticationManager()))
+            .addFilter( customLoginFilter(authenticationManager()));
 
         http.authorizeHttpRequests()
                 .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
@@ -82,8 +80,15 @@ public class SpringSecurityConfig {
         return http.build();
     }
 
+    @Bean
+    JwtAuthrizationFilter jwtAuthrizationFilter(AuthenticationManager authenticationManager) throws Exception {
+        return new JwtAuthrizationFilter(authenticationManager, userMapper);
+    }
 
-
+    @Bean
+    CustomLoginFilter customLoginFilter(AuthenticationManager authenticationManager) throws Exception {
+        return new CustomLoginFilter(authenticationManager, tokenMapper);
+    }
 
     @Bean
     OAuthLoginSuccessHandler oAuthLoginSuccessHandler(){
@@ -97,7 +102,6 @@ public class SpringSecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList("*")); //모든요청 주소를 허용 == CrossOrigin
         configuration.setAllowedMethods(Collections.singletonList("*")); //모든요청 메서드를 허용
@@ -106,13 +110,12 @@ public class SpringSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
 
         return source;
-
     }
-
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
 
 }

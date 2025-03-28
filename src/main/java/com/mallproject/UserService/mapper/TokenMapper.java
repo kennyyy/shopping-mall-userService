@@ -2,9 +2,7 @@ package com.mallproject.UserService.mapper;
 
 
 import com.mallproject.UserService.model.Token;
-import com.mallproject.UserService.model.User;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface TokenMapper {

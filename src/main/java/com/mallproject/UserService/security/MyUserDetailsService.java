@@ -2,8 +2,8 @@ package com.mallproject.UserService.security;
 
 import com.mallproject.UserService.mapper.UserMapper;
 import com.mallproject.UserService.model.User;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UserMapper userMapper;
 
     MyUserDetailsService(UserMapper userMapper){
@@ -24,14 +25,11 @@ public class MyUserDetailsService implements UserDetailsService {
         //매개변수로 들어온 user가 일치하는지만 확인한다
         //null 리턴시 AuthenticationFailureHandler 호출
 
-        System.out.println(username);
         User user = userMapper.findUser(username);
+        logger.info("로그인 유저 : " + user);
 
-        System.out.println("로그인");
-        System.out.println("로그인 유저 : " + user);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-
+            throw new UsernameNotFoundException("유저를 찾을 수 없음 : " + username);
         }
 
         return new MyUserDetails(user);

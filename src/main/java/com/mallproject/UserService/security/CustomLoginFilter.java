@@ -3,17 +3,11 @@ package com.mallproject.UserService.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mallproject.UserService.mapper.TokenMapper;
 import com.mallproject.UserService.model.Token;
-import com.mallproject.UserService.model.User;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Service;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -26,12 +20,11 @@ import java.util.Map;
 
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final AuthenticationManager authenticationManager;
     private final TokenMapper tokenMapper;
 
 
     public CustomLoginFilter(AuthenticationManager authenticationManager, TokenMapper tokenMapper) {
-        this.authenticationManager = authenticationManager;
+        super(authenticationManager);
         this.tokenMapper = tokenMapper;
     }
 
@@ -58,7 +51,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
 
         //토큰을 이용하여 인증수행
-        Authentication authentication = authenticationManager.authenticate(token);
+        Authentication authentication = getAuthenticationManager().authenticate(token);
 
         return authentication;
     }
@@ -71,8 +64,8 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         MyUserDetails principal = (MyUserDetails)authResult.getPrincipal();
 
 
-        //JWT 토큰 생성 후 header에 담기
-        String accessToken = JWTService.createToken(principal.getUser());
+        //JWT 토큰 생성 후 리프레쉬 토큰 발행
+        String accessToken = JWTService.createAccessToken(principal.getUser());
         String refreshToken = JWTService.CreateRefreshToken(principal.getUser());
 
         Token saveToken = Token.builder()
@@ -80,21 +73,16 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
                 .refreshToken(refreshToken)
                 .build();
         tokenMapper.saveToken(saveToken);
-
-
-        response.setContentType("application/json; charset=UTF8;");
-        response.addHeader("Authorization", "Bearer " + accessToken);
-
+        
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setMaxAge(604800000);
         response.addCookie(cookie);
 
-
-        response.getWriter().println("로그인성공(아이디):" + accessToken );
-
-
+        response.setContentType("application/json; charset=UTF8;");
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        response.getWriter().println("로그인성공(임시용 테스트끝나면 삭제예정):" + accessToken );
     }
 
 

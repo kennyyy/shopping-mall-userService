@@ -1,55 +1,40 @@
 package com.mallproject.UserService.controller;
 
+import com.mallproject.UserService.mapper.UserMapper;
 import com.mallproject.UserService.model.Token;
 import com.mallproject.UserService.model.User;
 import com.mallproject.UserService.security.JWTService;
 import com.mallproject.UserService.service.AuthService;
 import com.mallproject.UserService.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
+@Tag(name = "인증, 토큰 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/auth")
 public class AuthController {
-    private final UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final AuthService authService;
 
-    @PostMapping("/access")
-    public ResponseEntity<Token> accessTokenVaild(@RequestBody Token token){
-        User user = userService.findUser(token.getUserId());
-        Token refreshToken = authService.findRefreshTokenByToken(token.getRefreshToken());
-
-        if(user == null || token.getRefreshToken().equals(refreshToken.getRefreshToken())
-                        || JWTService.isTokenValid(token.getRefreshToken())
-                        ||!JWTService.isExpiredCheck(token.getRefreshToken())){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-
-        Token accessToken = Token.builder()
-                .accessToken(JWTService.createToken(user))
-                .build();
-        return new ResponseEntity<>(accessToken, HttpStatus.OK);
+    @Operation(summary = "토큰 재발급", description = "리프레쉬 토큰 검증 및 엑세스 토큰 재발급")
+    @PostMapping("/reissue")
+    public ResponseEntity<Token> refreshTokenVaild(@RequestBody Token token){
+        return authService.refreshTokenVaild(token);
     }
 
-
-
+    @Operation(summary = "로그아웃", description = "리프레쉬 토큰 삭제")
     @PostMapping("/logout")
     public ResponseEntity<Token> logout(@RequestBody Token token){
-        //리프레쉬 토큰 삭제
-        Token refreshToken = authService.findRefreshTokenByToken(token.getRefreshToken());
-        if(refreshToken == null){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        authService.deleteRefreshToken(refreshToken.getRefreshToken());
-        return new ResponseEntity<>(HttpStatus.OK);
-
+        return authService.logout(token);
     }
 
 

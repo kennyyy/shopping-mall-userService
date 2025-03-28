@@ -7,10 +7,6 @@ server:
   port: 8181
 
 spring:
-  mvc:
-    view:
-      prefix: /WEB-INF/views/ #view단을 jsp로 사용
-      suffix: .jsp
   datasource:
     hikari:
       driver-class-name: ${DATABASE_DRIVER_NAME}
@@ -54,6 +50,11 @@ jwt:
   redirect-uri: ${JWT.REDIRECT_URI}
 
 
+springdoc:
+  api-docs:
+    path: /public/api-docs
+  swagger-ui:
+    path: /public/swagger-ui.html
 
 logging:
   level:
