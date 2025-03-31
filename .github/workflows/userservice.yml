@@ -53,7 +53,9 @@ jobs:
 
 
       - name: Build Docker Image
-        run: docker build --build-arg DATABASE_DRIVER_NAME=${{env.DATABASE_DRIVER_NAME}} \
+        run: | 
+          docker build \
+          --build-arg DATABASE_DRIVER_NAME=${{env.DATABASE_DRIVER_NAME}} \
           --build-arg DATABASE_URL=${{env.DATABASE_URL}} \
           --build-arg DATABASE_USERNAME=${{env.DATABASE_USERNAME}} \
           --build-arg DATABASE_PASSWORD=${{env.DATABASE_PASSWORD}} \
@@ -67,8 +69,8 @@ jobs:
           --build-arg JWT_ACCESSS_TOKEN_EXPRIATION_TIME=${{env.JWT_ACCESSS_TOKEN_EXPRIATION_TIME}} \
           --build-arg JWT_REFRESH_TOKEN_EXPRIATION_TIME=${{env.JWT_REFRESH_TOKEN_EXPRIATION_TIME}} \
           --build-arg JWT_REDIRECT_URI=${{env.JWT_REDIRECT_URI}} \
-	-t ${{secrets.DOCKERHUB_USERNAME}}/userservice:latest .
-
+          -t ${{secrets.DOCKERHUB_USERNAME}}/userservice:latest .
+	
 
       - name: Push Image 
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/userservice:latest
