@@ -55,22 +55,23 @@ jobs:
       - name: Build Docker Image
         run: | 
           docker build \
-          --build-arg DATABASE_DRIVER_NAME=${{env.DATABASE_DRIVER_NAME}} \
-          --build-arg DATABASE_URL=${{env.DATABASE_URL}} \
-          --build-arg DATABASE_USERNAME=${{env.DATABASE_USERNAME}} \
-          --build-arg DATABASE_PASSWORD=${{env.DATABASE_PASSWORD}} \
-          --build-arg OAUTH2_GOOGLE_CLIENT_ID=${{env.OAUTH2_GOOGLE_CLIENT_ID}} \
-          --build-arg OAUTH2_GOOGLE_SECRET=${{env.OAUTH2_GOOGLE_SECRET}} \
-          --build-arg OAUTH2_GOOGLE_REDIRECT_URI=${{env.OAUTH2_GOOGLE_REDIRECT_URI}} \
-          --build-arg OAUTH2_NAVER_CLIENT=${{env.OAUTH2_NAVER_CLIENT}} \
-          --build-arg OAUTH2_NAVER_SECRET=${{env.OAUTH2_NAVER_SECRET}} \
-          --build-arg OAUTH2_NAVER_REDIRECT_URI=${{env.OAUTH2_NAVER_REDIRECT_URI}} \
-          --build-arg JWT_SECRETKEY=${{env.JWT_SECRETKEY}} \
-          --build-arg JWT_ACCESSS_TOKEN_EXPRIATION_TIME=${{env.JWT_ACCESSS_TOKEN_EXPRIATION_TIME}} \
-          --build-arg JWT_REFRESH_TOKEN_EXPRIATION_TIME=${{env.JWT_REFRESH_TOKEN_EXPRIATION_TIME}} \
-          --build-arg JWT_REDIRECT_URI=${{env.JWT_REDIRECT_URI}} \
-          -t ${{secrets.DOCKERHUB_USERNAME}}/userservice:latest .
-	
+           run: |
+            docker build --build-arg DATABASE_DRIVER_NAME="${{env.DATABASE_DRIVER_NAME}}" \
+            --build-arg DATABASE_URL="${{env.DATABASE_URL}}" \
+            --build-arg DATABASE_USERNAME="${{env.DATABASE_USERNAME}}" \
+            --build-arg DATABASE_PASSWORD="${{env.DATABASE_PASSWORD}}" \
+            --build-arg OAUTH2_GOOGLE_CLIENT_ID="${{env.OAUTH2_GOOGLE_CLIENT_ID}}" \
+            --build-arg OAUTH2_GOOGLE_SECRET="${{env.OAUTH2_GOOGLE_SECRET}}" \
+            --build-arg OAUTH2_GOOGLE_REDIRECT_URI="${{env.OAUTH2_GOOGLE_REDIRECT_URI}}" \
+            --build-arg OAUTH2_NAVER_CLIENT="${{env.OAUTH2_NAVER_CLIENT}}" \
+            --build-arg OAUTH2_NAVER_SECRET="${{env.OAUTH2_NAVER_SECRET}}" \
+            --build-arg OAUTH2_NAVER_REDIRECT_URI="${{env.OAUTH2_NAVER_REDIRECT_URI}}" \
+            --build-arg JWT_SECRETKEY="${{env.JWT_SECRETKEY}}" \
+            --build-arg JWT_ACCESSS_TOKEN_EXPRIATION_TIME="${{env.JWT_ACCESSS_TOKEN_EXPRIATION_TIME}}" \
+            --build-arg JWT_REFRESH_TOKEN_EXPRIATION_TIME="${{env.JWT_REFRESH_TOKEN_EXPRIATION_TIME}}" \
+            --build-arg JWT_REDIRECT_URI="${{env.JWT_REDIRECT_URI}}" \
+            -t ${{secrets.DOCKERHUB_USERNAME}}/userservice:latest .
+          
 
       - name: Push Image 
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/userservice:latest
