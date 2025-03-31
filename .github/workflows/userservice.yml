@@ -67,7 +67,8 @@ jobs:
           --build-arg JWT_SECRETKEY=${{env.JWT_SECRETKEY}} \
           --build-arg JWT_ACCESSS_TOKEN_EXPRIATION_TIME=${{env.JWT_ACCESSS_TOKEN_EXPRIATION_TIME}} \
           --build-arg JWT_REFRESH_TOKEN_EXPRIATION_TIME=${{env.JWT_REFRESH_TOKEN_EXPRIATION_TIME}} \
-          --build-arg JWT_REDIRECT_URI=${{env.JWT_REDIRECT_URI}} .
+          --build-arg JWT_REDIRECT_URI=${{env.JWT_REDIRECT_URI}} \
+	.
 
 
       - name: Push Image 
