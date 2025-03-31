@@ -53,8 +53,7 @@ jobs:
 
 
       - name: Build Docker Image
-        run: docker build \
-          --build-arg DATABASE_DRIVER_NAME=${{env.DATABASE_DRIVER_NAME}} \
+        run: docker build --build-arg DATABASE_DRIVER_NAME=${{env.DATABASE_DRIVER_NAME}} \
           --build-arg DATABASE_URL=${{env.DATABASE_URL}} \
           --build-arg DATABASE_USERNAME=${{env.DATABASE_USERNAME}} \
           --build-arg DATABASE_PASSWORD=${{env.DATABASE_PASSWORD}} \
