@@ -61,7 +61,7 @@ public class SpringSecurityConfig {
         http.httpBasic().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.cors(Customizer.withDefaults());
+        http.cors(cor->cor.configurationSource(corsConfigurationSource()));
 
         http.addFilter( jwtAuthrizationFilter(authenticationManager()))
             .addFilter( customLoginFilter(authenticationManager()));
