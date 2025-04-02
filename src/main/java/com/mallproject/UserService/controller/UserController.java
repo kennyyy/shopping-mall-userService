@@ -18,7 +18,7 @@ import java.util.List;
 @Tag(name = "유저 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/user")
+@RequestMapping(value = "/api/user/info")
 public class UserController {
     //SLf4j
     private final Logger log = LoggerFactory.getLogger(getClass());

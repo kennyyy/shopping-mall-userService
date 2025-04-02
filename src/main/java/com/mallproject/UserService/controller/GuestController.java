@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "게스트 API", description = "로그인 인증 필요 없이 모든 유저가 사용할 수 있는 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/guest")
+@RequestMapping(value = "/api/user/guest")
 public class GuestController {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "인증, 토큰 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/auth")
+@RequestMapping(value = "/api/user/auth")
 public class AuthController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

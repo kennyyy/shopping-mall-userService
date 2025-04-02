@@ -67,6 +67,8 @@ public class SpringSecurityConfig {
             .addFilter( customLoginFilter(authenticationManager()));
 
         http.authorizeHttpRequests()
+                .antMatchers("/api/**/guest/**").permitAll()
+                .antMatchers("/api/**/public/**").permitAll()
                 .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll();
