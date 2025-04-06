@@ -2,9 +2,62 @@ app:
   application:
     name: UserService
 
-# 서버포트
+---
+
+spring:
+  profiles:
+    active: local
+    group:
+      local: local, common
+      blue: blue, common
+      green: green, common #, secret
+
+server:
+  env: blue
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
 server:
   port: 8181
+  address: localhost
+
+serverName: local_server
+
+---
+spring:
+  config:
+    activate:
+      on-profile: blue
+
+server:
+  port: 8181
+  # address: 52.78.112.137
+  address: 0.0.0.0
+
+serverName: user_blue
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: green
+
+server:
+  port: 8181
+  # address: 52.78.112.137
+  address: 0.0.0.0
+
+serverName: user_green
+
+---
+
+
 
 spring:
   datasource:
@@ -59,9 +112,6 @@ springdoc:
 logging:
   level:
     com.mallproject: debug
-
-
-
 
 
 

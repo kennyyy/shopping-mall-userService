@@ -20,8 +20,7 @@ public class JwtAuthrizationFilter extends BasicAuthenticationFilter {
 
     private UserMapper userMapper;
 
-    private final List<String> permitURIs = Arrays.asList("/guest", "/public");
-    private static final String USERURI = "/api/user";
+    private final List<String> permitURIs = Arrays.asList("/guest", "/public","/env");
 
     public JwtAuthrizationFilter(AuthenticationManager authenticationManager, UserMapper userMapper) {
         super(authenticationManager);
@@ -35,10 +34,8 @@ public class JwtAuthrizationFilter extends BasicAuthenticationFilter {
         String requestURI = request.getRequestURI();
 
         for(String permituri : permitURIs){
-            StringBuilder sb = new StringBuilder(permituri);
-            sb.insert(0, USERURI);
             //JWT 검증이 필요없는 URI는 제외
-            if(requestURI.startsWith(sb.toString())){
+            if(requestURI.contains(permituri)){
                 filterChain.doFilter(request, response);
                 return;
             }

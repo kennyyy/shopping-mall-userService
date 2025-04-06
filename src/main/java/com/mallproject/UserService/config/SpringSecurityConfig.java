@@ -60,8 +60,7 @@ public class SpringSecurityConfig {
         http.formLogin().disable();
         http.httpBasic().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.cors(cor->cor.configurationSource(corsConfigurationSource()));
+        http.cors().configurationSource(corsConfigurationSource());
 
         http.addFilter( jwtAuthrizationFilter(authenticationManager()))
             .addFilter( customLoginFilter(authenticationManager()));
@@ -69,8 +68,9 @@ public class SpringSecurityConfig {
         http.authorizeHttpRequests()
                 .antMatchers("/api/**/guest/**").permitAll()
                 .antMatchers("/api/**/public/**").permitAll()
-                .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/**/env").permitAll()
+//                .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
+//                .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll();
 
         http.oauth2Login(oauth ->{
