@@ -69,8 +69,8 @@ public class SpringSecurityConfig {
                 .antMatchers("/api/**/guest/**").permitAll()
                 .antMatchers("/api/**/public/**").permitAll()
                 .antMatchers("/api/**/env").permitAll()
-//                .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
-//                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/api/**/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll();
 
         http.oauth2Login(oauth ->{
