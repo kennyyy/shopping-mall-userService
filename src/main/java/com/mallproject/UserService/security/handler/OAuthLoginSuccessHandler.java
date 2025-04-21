@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private MyOAuth2User myOAuth2User;
     private final UserMapper userMapper;
     private final TokenMapper tokenMapper;
+    private final JWTService jwtService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -65,25 +67,28 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
                     .build();
             userMapper.saveUser(DBUser);
         }
+        //엑세스 토큰 발행
+        String accessToken = jwtService.createAccessToken(DBUser);
 
-        String accessToken = JWTService.createAccessToken(DBUser);
-        String refreshToken = JWTService.CreateRefreshToken(DBUser);
+        //리프레쉬 토큰 발행
+        //추후 https 설정하면 진행할 예정
+//        String refreshToken = jwtService.CreateRefreshToken(DBUser);
+//
+//        Token saveToken = Token.builder()
+//                .userId(providerId)
+//                .refreshToken(refreshToken)
+//                .build();
+//        tokenMapper.saveToken(saveToken);
 
-        Token saveToken = Token.builder()
-                .userId(providerId)
-                .refreshToken(refreshToken)
-                .build();
-        tokenMapper.saveToken(saveToken);
+        //Cookie cookie = new Cookie("refreshToken", refreshToken);
+        //cookie.setHttpOnly(true);
+        //cookie.setSecure(true);
+        //cookie.setMaxAge(refreshExpireTime);
+        //cookie.setPath("/");
+        //response.addCookie(cookie);
 
         response.setContentType("application/json; charset=UTF8;");
         response.addHeader("Authorization", "Bearer " + accessToken);
-
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setMaxAge(refreshExpireTime);
-        response.addCookie(cookie);
-
         response.sendRedirect(redirectURL);
     }
 }

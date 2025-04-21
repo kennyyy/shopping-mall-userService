@@ -24,7 +24,17 @@ spring:
 
 server:
   port: 8181
-  address: localhost
+
+
+mall:
+  rest:
+    address:
+      product: http://52.78.112.137:8080/api/product
+      cart: http://52.78.112.137:8082/api/cart
+      order: http://52.78.112.137:8084/api/order
+      user: http://52.78.112.137:8081/api/user
+
+
 
 serverName: local_server
 
@@ -39,6 +49,15 @@ server:
   # address: 52.78.112.137
   address: 0.0.0.0
 
+mall:
+  rest:
+    address:
+      product: mall_product_blue:8080/api/product
+      cart: mall_cart_blue:8082/api/cart
+      order: mall_order_blue:8084/api/order
+      user: mall_user_blue:8081/api/user
+
+
 serverName: user_blue
 
 ---
@@ -52,6 +71,15 @@ server:
   port: 8181
   # address: 52.78.112.137
   address: 0.0.0.0
+
+mall:
+  rest:
+    address:
+      product: mall_product_blue:8081/api/product
+      cart: mall_cart_blue:8083/api/cart
+      order: mall_order_blue:8085/api/order
+      user: mall_user_blue:8082/api/user
+
 
 serverName: user_green
 

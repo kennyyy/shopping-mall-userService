@@ -26,7 +26,8 @@ public class User{
     private String userGender;
     private String userLocation;
     private String role;
-
+    
+    //권한List
     List<GrantedAuthority> authorities = new ArrayList<>();
 
 }

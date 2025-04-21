@@ -27,13 +27,15 @@ public class AuthController {
 
     @Operation(summary = "토큰 재발급", description = "리프레쉬 토큰 검증 및 엑세스 토큰 재발급")
     @PostMapping("/reissue")
-    public ResponseEntity<Token> refreshTokenVaild(@RequestBody Token token){
+    public ResponseEntity<Token> refreshTokenVaild(@RequestBody Token token, @CookieValue(value = "refreshToken", required = false) String refreshToken){
+        token.setRefreshToken(refreshToken);
         return authService.refreshTokenVaild(token);
     }
 
     @Operation(summary = "로그아웃", description = "리프레쉬 토큰 삭제")
     @PostMapping("/logout")
-    public ResponseEntity<Token> logout(@RequestBody Token token){
+    public ResponseEntity<Token> logout(@RequestBody Token token, @CookieValue(value = "refreshToken", required = false) String refreshToken){
+        token.setRefreshToken(refreshToken);
         return authService.logout(token);
     }
 

@@ -1,6 +1,7 @@
 package com.mallproject.UserService.security;
 
 import com.mallproject.UserService.model.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,9 +19,7 @@ public class MyUserDetails implements UserDetails, OAuth2User {
     public MyUserDetails(User user) {
         this.user = user;
     }
-    public String getRole(){
-        return user.getRole();
-    }
+
     public User getUser(){
         return user;
     }
@@ -29,7 +28,8 @@ public class MyUserDetails implements UserDetails, OAuth2User {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        //권한설정시 내부적으로 "ROLE_"가 붙는다. 그러므로 명시적으로 ROLE_이 붙여야한다.
+        //hasAnyRole("ADMIN", "USER") 이렇게 설정하면, 시큐리티 내부적으로 권한찾을때 "ROLE_"를 붙여서 찾기떄문에
+        //권한부여시 "ROLE_" 추가해줘야한다
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         return authorities;
     }

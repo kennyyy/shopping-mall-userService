@@ -1,6 +1,7 @@
 package com.mallproject.UserService.serviceImpl;
 
 
+import com.auth0.jwt.JWT;
 import com.mallproject.UserService.mapper.TokenMapper;
 import com.mallproject.UserService.mapper.UserMapper;
 import com.mallproject.UserService.model.Token;
@@ -21,20 +22,24 @@ public class AuthServicelmpl implements AuthService {
 
     private final TokenMapper tokenMapper;
     private final UserMapper userMapper;
+    private final JWTService jwtService;
 
     @Override
     public ResponseEntity<Token> refreshTokenVaild(Token token) {
-        User user = userMapper.findUser(token.getUserId());
+        JWTService jwtService = new JWTService();
+        String userId = jwtService.getClaimUserId(token.getRefreshToken());
+
+        User user = userMapper.findUser(userId);
         Token refreshToken = tokenMapper.findRefreshTokenByToken(token.getRefreshToken());
 
         if(user == null || token.getRefreshToken().equals(refreshToken.getRefreshToken())
-                || JWTService.isTokenValid(token.getRefreshToken())
-                ||!JWTService.isExpiredCheck(token.getRefreshToken())){
+                || jwtService.isTokenValid(token.getRefreshToken())
+                || jwtService.isExpiredCheck(token.getRefreshToken())){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         Token accessToken = Token.builder()
-                .accessToken(JWTService.createAccessToken(user))
+                .accessToken(jwtService.createAccessToken(user))
                 .build();
         return new ResponseEntity<>(accessToken, HttpStatus.OK);
     }

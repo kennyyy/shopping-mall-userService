@@ -30,9 +30,10 @@ public class GuestServiceImpl implements GuestService {
         if(DBUser == null){
             user.setUserPw(bCryptPasswordEncoder.encode(user.getUserPw()));
             user.setUserProvider("shopping-mall");
+            user.setRole("USER");
             userMapper.saveUser(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
         }
-        return new ResponseEntity<>(user, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(user, HttpStatus.UNAUTHORIZED);
     }
 }

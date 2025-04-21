@@ -3,6 +3,7 @@ package com.mallproject.UserService.config;
 import com.mallproject.UserService.mapper.TokenMapper;
 import com.mallproject.UserService.mapper.UserMapper;
 import com.mallproject.UserService.security.CustomLoginFilter;
+import com.mallproject.UserService.security.JWTService;
 import com.mallproject.UserService.security.JwtAuthrizationFilter;
 import com.mallproject.UserService.security.MyUserDetailsService;
 import com.mallproject.UserService.security.handler.OAuthLoginFailureHandler;
@@ -45,6 +46,8 @@ public class SpringSecurityConfig {
 
     private final UserMapper userMapper;
     private final TokenMapper tokenMapper;
+    private final JWTService jwtService;
+
     private final AuthenticationConfiguration authenticationConfiguration;
 
 
@@ -62,16 +65,15 @@ public class SpringSecurityConfig {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.cors().configurationSource(corsConfigurationSource());
 
-        http.addFilter( jwtAuthrizationFilter(authenticationManager()))
-            .addFilter( customLoginFilter(authenticationManager()));
+        http.addFilter(jwtAuthrizationFilter())
+                .addFilter(customLoginFilter());
 
         http.authorizeHttpRequests()
-                .antMatchers("/api/**/guest/**").permitAll()
-                .antMatchers("/api/**/public/**").permitAll()
-                .antMatchers("/api/**/env").permitAll()
-                .antMatchers("/api/**").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/api/**/admin/**").hasRole("ADMIN")
-                .anyRequest().permitAll();
+                .antMatchers("/api/user/guest/**", "/api/user/public/**",
+                        "/api/user/env", "/api/user/login").permitAll()
+                .antMatchers("/api/user").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/api/user/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated();
 
         http.oauth2Login(oauth ->{
             oauth
@@ -83,18 +85,21 @@ public class SpringSecurityConfig {
     }
 
     @Bean
-    JwtAuthrizationFilter jwtAuthrizationFilter(AuthenticationManager authenticationManager) throws Exception {
-        return new JwtAuthrizationFilter(authenticationManager, userMapper);
+    JwtAuthrizationFilter jwtAuthrizationFilter() throws Exception {
+        return new JwtAuthrizationFilter(authenticationManager(), jwtService);
     }
 
     @Bean
-    CustomLoginFilter customLoginFilter(AuthenticationManager authenticationManager) throws Exception {
-        return new CustomLoginFilter(authenticationManager, tokenMapper);
+    CustomLoginFilter customLoginFilter() throws Exception {
+        CustomLoginFilter customLoginFilter = new CustomLoginFilter(authenticationManager(), tokenMapper, jwtService);
+        //기본값은 /login인데 원하는 로그인 URI지정
+        customLoginFilter.setFilterProcessesUrl("/api/user/login");
+        return customLoginFilter;
     }
 
     @Bean
     OAuthLoginSuccessHandler oAuthLoginSuccessHandler(){
-        return new OAuthLoginSuccessHandler(userMapper, tokenMapper);
+        return new OAuthLoginSuccessHandler(userMapper, tokenMapper, jwtService);
     }
 
     @Bean
@@ -109,6 +114,7 @@ public class SpringSecurityConfig {
         configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));//기본적으로 모든 헤더값은 노출할 수없다, 고로 허용해줘야한다.
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 

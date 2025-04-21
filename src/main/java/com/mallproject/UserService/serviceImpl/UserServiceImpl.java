@@ -32,13 +32,12 @@ public class UserServiceImpl implements UserService {
         User findUser = userMapper.findUser(userId);
 
         if(findUser == null){
-            new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Access-Control-Allow-Origin", "true");
+
         logger.info("사용자 조회 : ${}" , findUser);
 
-        return new ResponseEntity<>(findUser, headers, HttpStatus.OK);
+        return new ResponseEntity<>(findUser, HttpStatus.OK);
     }
 
     @Override

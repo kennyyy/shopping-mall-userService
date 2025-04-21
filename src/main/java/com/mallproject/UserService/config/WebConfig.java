@@ -39,7 +39,6 @@ public class WebConfig implements WebMvcConfigurer {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 
         bean.setDataSource(dataSource);
-
         bean.setConfigLocation(new PathMatchingResourcePatternResolver().getResource("classpath:mybatis/mybatis-config.xml"));
         bean.setTypeAliasesPackage("com.mallproject.UserService.model");
         bean.setMapperLocations(applicationContext.getResources("classpath:/mapper/*.xml"));

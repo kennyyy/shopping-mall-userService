@@ -7,6 +7,7 @@ import com.mallproject.UserService.mapper.UserMapper;
 import com.mallproject.UserService.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.Date;
@@ -16,21 +17,36 @@ import java.util.Date;
 @Service
 public class JWTService {
 
-    @Autowired
-    private UserMapper userMapper;
-
     @Value("${jwt.secretKey}")
-    private String secretKey;
+    private String SECRET_KEY;
 
-    private static String SECRET_KEY;
-    private static long REFRESHCHECKTIME = 1000 * 60 * 60 * 3;
-    @PostConstruct
-    public void init() {
-        SECRET_KEY = secretKey;
+    @Value("${jwt.access-token.expiration-time}")
+    private long ACCESSTIME;
+
+    @Value("${jwt.refresh-token.expiration-time}")
+    private long REFRESHTIME;
+
+    //refresh 만료 5분전 미리 만료시키기 위한 time
+    private final long REFRESHCHECKTIME = 1000 * 60 * 5;
+
+
+    public String createAccessToken(User user){
+        long expireTime = System.currentTimeMillis() + ACCESSTIME;
+
+        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+
+        return JWT.create()
+                .withSubject(user.getUserName())
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(expireTime))
+                .withIssuer("shoppingMSA")
+                .withClaim("userId", user.getUserId())
+                .withClaim("userRole", user.getRole())
+                .sign(algorithm);
     }
 
-    public static String createAccessToken(User user){
-        long expireTime = System.currentTimeMillis() + 3600000;
+    public String CreateRefreshToken(User user){
+        long expireTime = System.currentTimeMillis() + REFRESHTIME;
 
         Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
 
@@ -40,50 +56,44 @@ public class JWTService {
                 .withExpiresAt(new Date(expireTime))
                 .withIssuer("shoppingMSA")
                 .withClaim("username", user.getUserId())
-                .sign(algorithm);
-    }
-    public static String CreateRefreshToken(User user){
-        long expireTime = System.currentTimeMillis() + 604800000;
-
-        Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
-
-        return JWT.create()
-                .withSubject(user.getUserName())
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(expireTime))
-                .withIssuer("shoppingMSA")
-                .withClaim("username", user.getUserId())
+                .withClaim("userRole", user.getRole())
                 .sign(algorithm);
     }
 
-
-    public static boolean isTokenValid(String token) {
+    public boolean isTokenValid(String token) {
         try {
             JWT.require(Algorithm.HMAC256(SECRET_KEY)).build().verify(token);
             return true;
-        } catch (Exception e) {
+        } catch (JwtException e) {
             return false;
         }
     }
 
 
-    public static String getClaimUserName(String token) {
+    public String getClaimUserId(String token) {
         DecodedJWT jwt = JWT.require(Algorithm.HMAC256(SECRET_KEY))
                 .build()
                 .verify(token);
 
-        return jwt.getClaim("username").asString();
+        return jwt.getClaim("userId").asString();
     }
 
+    public String getClaimUserRole(String token) {
+        DecodedJWT jwt = JWT.require(Algorithm.HMAC256(SECRET_KEY))
+                .build()
+                .verify(token);
 
-    public static boolean isExpiredCheck(String token){
+        return jwt.getClaim("userRole").asString();
+    }
+
+    public boolean isExpiredCheck(String token){
         DecodedJWT jwt = JWT.require(Algorithm.HMAC256(SECRET_KEY))
                 .build()
                 .verify(token);
         long now = System.currentTimeMillis();
-        long expiredTime = jwt.getExpiresAt().getTime() - now;
+        long remainTime = jwt.getExpiresAt().getTime() - now;
 
-        return expiredTime > REFRESHCHECKTIME;
+        return remainTime < REFRESHCHECKTIME;
     }
 
 }
